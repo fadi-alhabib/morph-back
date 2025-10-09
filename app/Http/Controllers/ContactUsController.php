@@ -11,13 +11,19 @@ class ContactUsController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:255',
             'email' => 'required|email|max:255',
+            'city' => 'required|string|max:255',
+            'performer' => 'required|string|max:255',
             'message' => 'required|string',
         ]);
 
         $contact = ContactUs::create([
             'name' => $request->name,
+            'phone' => $request->phone,
             'email' => $request->email,
+            'city' => $request->city,
+            'performer' => $request->performer,
             'message' => $request->message,
         ]);
 
@@ -62,7 +68,10 @@ class ContactUsController extends Controller
     {
         $request->validate([
             'name' => 'sometimes|string|max:255',
+            'phone' => 'sometimes|string|max:255',
             'email' => 'sometimes|email|max:255',
+            'city' => 'sometimes|string|max:255',
+            'performer' => 'sometimes|string|max:255',
             'message' => 'sometimes|string',
         ]);
 
@@ -74,7 +83,7 @@ class ContactUsController extends Controller
             ], 404);
         }
 
-        $contact->update($request->only(['name', 'email', 'message']));
+        $contact->update($request->only(['name', 'phone', 'email', 'city', 'performer', 'message']));
 
         return response()->json([
             'message' => 'Contact updated successfully!',
