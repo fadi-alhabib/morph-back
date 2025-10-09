@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://morphicarts.sa'],
+    'allowed_origins' => ['https://morphicarts.sa', "https://www.morphicarts.sa"],
 
     'allowed_origins_patterns' => [],
 
