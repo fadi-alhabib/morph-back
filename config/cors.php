@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://morphicarts.sa', "https://www.morphicarts.sa", "https://admin.morphicarts.sa", "http://localhost:3000"],
+    'allowed_origins' => ['https://morphicarts.sa', "https://www.morphicarts.sa", "https://admin.morphicarts.sa", "http://localhost:5173"],
 
     'allowed_origins_patterns' => [],
 
