@@ -16,8 +16,8 @@ Route::put('/contacts/{id}', [ContactUsController::class, 'update']); // Update 
 Route::delete('/contacts/{id}', [ContactUsController::class, 'destroy']); // Delete a contact
 
 // Home routes
-Route::get('/home', [HomeController::class, 'show']); // Get home data
-Route::put('/home', [HomeController::class, 'update']); // Update home data
+Route::get('/homes', [HomeController::class, 'show']); // Get home data
+Route::put('/homes', [HomeController::class, 'update']); // Update home data
 
 // Performer routes
 Route::apiResource('performers', PerformerController::class);
