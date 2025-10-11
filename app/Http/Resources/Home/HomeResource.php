@@ -15,14 +15,16 @@ class HomeResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'                => $this->id,
-            'whatsapp_link'     => $this->whatsapp_link,
-            'printed_projects'  => $this->printed_projects,
-            'printing_services' => $this->printing_services,
-            'clients'           => $this->clients,
-            'email'             => $this->email,
-            'phone_number'      => $this->phone_number,
-            'location'          => $this->location
+            'id'            => $this->id,
+            'whatsapp_link' => $this->whatsapp_link,
+            'x_link'        => $this->x_link,
+            'youtube_link'  => $this->youtube_link,
+            'instagram_link' => $this->instagram_link,
+            'phone_number'  => $this->phone_number,
+            'email'         => $this->email,
+            'location'      => $this->location,
+            'created_at'    => $this->created_at,
+            'updated_at'    => $this->updated_at
         ];
     }
 }
