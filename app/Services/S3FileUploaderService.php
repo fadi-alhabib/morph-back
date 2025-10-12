@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Exception;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\FacadesLog;
+
 
 class S3FileUploaderService implements IFileUploaderService
 {
@@ -123,16 +123,35 @@ class S3FileUploaderService implements IFileUploaderService
             $pathInfo = pathinfo($oldPath);
             $directory = $pathInfo['dirname'] ?? '';
 
-            // Upload new file
+            Log::info('Starting media replacement', [
+                'old_path' => $oldPath,
+                'directory' => $directory,
+                'new_file' => $newFile->getClientOriginalName()
+            ]);
+
+            // Upload new file first
             $newFilePath = $this->uploadSingleFile($newFile, $directory);
 
-            // Delete old file if it exists
-            if (Storage::disk($this->disk)->exists($oldPath)) {
-                Storage::disk($this->disk)->delete($oldPath);
+            Log::info('New file uploaded successfully', [
+                'new_path' => $newFilePath
+            ]);
+
+            // Delete old file if it exists and is different from new file
+            if ($oldPath !== $newFilePath && Storage::disk($this->disk)->exists($oldPath)) {
+                $deleted = Storage::disk($this->disk)->delete($oldPath);
+                Log::info('Old file deletion result', [
+                    'deleted' => $deleted,
+                    'old_path' => $oldPath
+                ]);
             }
 
             return $newFilePath;
         } catch (Exception $e) {
+            Log::error('Media replacement failed', [
+                'error' => $e->getMessage(),
+                'old_path' => $oldPath,
+                'new_file' => $newFile->getClientOriginalName()
+            ]);
             throw new Exception("Media replacement failed: " . $e->getMessage());
         }
     }

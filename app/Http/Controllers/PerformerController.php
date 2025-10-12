@@ -9,15 +9,11 @@ use App\Models\Performer;
 use App\Services\S3FileUploaderService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
 class PerformerController extends Controller
 {
-    protected $fileUploader;
-
-    public function __construct(S3FileUploaderService $fileUploader)
-    {
-        $this->fileUploader = $fileUploader;
-    }
+    public function __construct(private readonly S3FileUploaderService $fileUploader) {}
 
     /**
      * Display a listing of the resource.
@@ -70,7 +66,7 @@ class PerformerController extends Controller
                 'data' => new PerformerResource($performer)
             ], 201);
         } catch (\Exception $e) {
-            \Log::error('Performer creation failed', [
+            Log::error('Performer creation failed', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -103,15 +99,30 @@ class PerformerController extends Controller
 
             // Handle image upload if new image is provided
             if ($request->hasFile('image')) {
-                // Delete old image if exists
+                Log::info('Updating performer image', [
+                    'performer_id' => $performer->id,
+                    'old_image' => $performer->image
+                ]);
+
                 if ($performer->image) {
-                    $this->fileUploader->deleteFile($performer->image);
+                    // Use replaceMedia method for atomic replacement
+                    $imagePath = $this->fileUploader->replaceMedia(
+                        $request->file('image'),
+                        $performer->image
+                    );
+                } else {
+                    // Upload new image if no existing image
+                    $imagePath = $this->fileUploader->uploadSingleFile(
+                        $request->file('image'),
+                        'performers'
+                    );
                 }
 
-                $imagePath = $this->fileUploader->uploadSingleFile(
-                    $request->file('image'),
-                    'performers'
-                );
+                Log::info('Image replacement completed', [
+                    'new_image_path' => $imagePath,
+                    'old_image_path' => $performer->image
+                ]);
+
                 $data['image'] = $imagePath;
             }
 
@@ -122,6 +133,12 @@ class PerformerController extends Controller
                 'data' => new PerformerResource($performer)
             ], 200);
         } catch (\Exception $e) {
+            Log::error('Performer update failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'performer_id' => $performer->id
+            ]);
+
             return response()->json([
                 'message' => 'Failed to update performer',
                 'error' => $e->getMessage()
