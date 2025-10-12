@@ -185,7 +185,7 @@ class S3FileUploaderService implements IFileUploaderService
      */
     public function getFileUrl(string $path): string
     {
-        return Storage::disk($this->disk)->temporaryUrl($path, now()->add(20));
+        return Storage::disk($this->disk)->temporaryUrl($path, now()->add('i', 20));
     }
 
     /**
