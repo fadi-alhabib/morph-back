@@ -46,6 +46,14 @@ class PerformerController extends Controller
         try {
             $data = $request->validated();
 
+            // Test S3 connection before attempting upload
+            if (!$this->fileUploader->testConnection()) {
+                return response()->json([
+                    'message' => 'S3 connection failed. Please check your AWS configuration.',
+                    'error' => 'S3 connectivity issue'
+                ], 500);
+            }
+
             // Handle image upload
             if ($request->hasFile('image')) {
                 $imagePath = $this->fileUploader->uploadSingleFile(
@@ -62,6 +70,11 @@ class PerformerController extends Controller
                 'data' => new PerformerResource($performer)
             ], 201);
         } catch (\Exception $e) {
+            \Log::error('Performer creation failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'message' => 'Failed to create performer',
                 'error' => $e->getMessage()

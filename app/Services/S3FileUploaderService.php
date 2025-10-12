@@ -46,8 +46,7 @@ class S3FileUploaderService implements IFileUploaderService
             $storedPath = Storage::disk($this->disk)->putFileAs(
                 $path,
                 $file,
-                $filename,
-                'public'
+                $filename
             );
 
             if (!$storedPath) {
@@ -56,6 +55,12 @@ class S3FileUploaderService implements IFileUploaderService
 
             return $storedPath;
         } catch (Exception $e) {
+            Log::error('S3 File Upload Error', [
+                'error' => $e->getMessage(),
+                'file' => $file->getClientOriginalName(),
+                'path' => $path,
+                'disk' => $this->disk
+            ]);
             throw new Exception("File upload failed: " . $e->getMessage());
         }
     }
@@ -211,5 +216,34 @@ class S3FileUploaderService implements IFileUploaderService
     public function fileExists(string $path): bool
     {
         return Storage::disk($this->disk)->exists($path);
+    }
+
+    /**
+     * Test S3 connectivity
+     *
+     * @return bool
+     */
+    public function testConnection(): bool
+    {
+        try {
+            $testContent = 'test';
+            $testPath = 'test/connection-test.txt';
+
+            $result = Storage::disk($this->disk)->put($testPath, $testContent);
+
+            if ($result) {
+                // Clean up test file
+                Storage::disk($this->disk)->delete($testPath);
+                return true;
+            }
+
+            return false;
+        } catch (Exception $e) {
+            Log::error('S3 Connection Test Failed', [
+                'error' => $e->getMessage(),
+                'disk' => $this->disk
+            ]);
+            return false;
+        }
     }
 }
