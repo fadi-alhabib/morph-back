@@ -185,7 +185,9 @@ class S3FileUploaderService implements IFileUploaderService
      */
     public function getFileUrl(string $path): string
     {
-        return Storage::disk($this->disk)->temporaryUrl($path, now()->add('i', 20));
+        // The 'add' method expects the unit as a string and value as the second argument
+        // Acceptable units are: 'minute', 'minutes', 'second', 'seconds', etc.
+        return Storage::disk($this->disk)->temporaryUrl($path, now()->addMinutes(20));
     }
 
     /**
