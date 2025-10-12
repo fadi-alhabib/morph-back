@@ -7,6 +7,8 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Exception;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\FacadesLog;
 
 class S3FileUploaderService implements IFileUploaderService
 {
@@ -36,10 +38,10 @@ class S3FileUploaderService implements IFileUploaderService
 
             // Generate unique filename
             $filename = $this->generateUniqueFilename($file);
-            
+
             // Build full path with AWS_ROOT prefix
             $fullPath = $this->buildFullPath($path, $filename);
-            
+
             // Store file in S3
             $storedPath = Storage::disk($this->disk)->putFileAs(
                 $path,
@@ -90,7 +92,7 @@ class S3FileUploaderService implements IFileUploaderService
 
         if (!empty($errors)) {
             // Log warnings for partial failures
-            \Log::warning("Some file uploads failed", ['errors' => $errors]);
+            Log::warning("Some file uploads failed", ['errors' => $errors]);
         }
 
         return $uploadedFiles;
@@ -115,10 +117,10 @@ class S3FileUploaderService implements IFileUploaderService
             // Extract directory from old path
             $pathInfo = pathinfo($oldPath);
             $directory = $pathInfo['dirname'] ?? '';
-            
+
             // Upload new file
             $newFilePath = $this->uploadSingleFile($newFile, $directory);
-            
+
             // Delete old file if it exists
             if (Storage::disk($this->disk)->exists($oldPath)) {
                 Storage::disk($this->disk)->delete($oldPath);
@@ -140,13 +142,13 @@ class S3FileUploaderService implements IFileUploaderService
     {
         $extension = $file->getClientOriginalExtension();
         $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        
+
         // Sanitize filename
         $filename = Str::slug($filename);
-        
+
         // Generate unique identifier
         $uniqueId = Str::uuid();
-        
+
         return "{$filename}_{$uniqueId}.{$extension}";
     }
 
@@ -161,11 +163,11 @@ class S3FileUploaderService implements IFileUploaderService
     {
         $path = trim($path, '/');
         $filename = trim($filename, '/');
-        
+
         if (empty($this->rootPath)) {
             return $path ? "{$path}/{$filename}" : $filename;
         }
-        
+
         $rootPath = trim($this->rootPath, '/');
         return $path ? "{$rootPath}/{$path}/{$filename}" : "{$rootPath}/{$filename}";
     }
@@ -192,7 +194,7 @@ class S3FileUploaderService implements IFileUploaderService
         try {
             return Storage::disk($this->disk)->delete($path);
         } catch (Exception $e) {
-            \Log::error("Failed to delete file from S3", [
+            Log::error("Failed to delete file from S3", [
                 'path' => $path,
                 'error' => $e->getMessage()
             ]);

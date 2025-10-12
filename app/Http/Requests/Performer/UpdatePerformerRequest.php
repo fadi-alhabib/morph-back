@@ -26,7 +26,7 @@ class UpdatePerformerRequest extends FormRequest
             'position' => 'sometimes|required|string|max:255',
             'home_description' => 'sometimes|required|string|max:500',
             'detailed_description' => 'sometimes|required|string|max:1000',
-            'image' => 'sometimes|required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'sometimes|required|image|mimes:jpeg,png,jpg,gif|max:1024',
         ];
     }
 
@@ -49,7 +49,7 @@ class UpdatePerformerRequest extends FormRequest
             'image.required' => 'The performer image is required.',
             'image.image' => 'The file must be an image.',
             'image.mimes' => 'The image must be a file of type: jpeg, png, jpg, gif.',
-            'image.max' => 'The image may not be greater than 2MB.',
+            'image.max' => 'The image may not be greater than 1MB.',
         ];
     }
 }
