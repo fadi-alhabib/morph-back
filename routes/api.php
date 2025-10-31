@@ -3,11 +3,14 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ContactUsController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PageViewController;
 use App\Http\Controllers\PerformerController;
 use Illuminate\Support\Facades\Route;
 
 Route::post("/login", [AuthController::class, "login"]);
 
+Route::apiResource('page-views', PageViewController::class)->only(['index', 'store']);
+Route::get('page-views/stats', [PageViewController::class, 'stats']);
 // Contact Us routes
 Route::post('/contacts', [ContactUsController::class, 'store']); // Create a contact
 Route::get('/contacts', [ContactUsController::class, 'index']); // Get all contacts
